@@ -1,0 +1,5 @@
+data/
+*.npy
+*.index
+__pycache__/
+.env

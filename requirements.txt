@@ -1,0 +1,7 @@
+pymupdf
+tqdm
+langchain
+langchain-text-splitters
+sentence-transformers
+faiss-cpu
+numpy
