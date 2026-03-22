@@ -1,5 +1,24 @@
-data/
-*.npy
-*.index
+# Python
 __pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+env/
 .env
+
+# Ignore all data
+data/
+
+# But keep folder structure (optional)
+!data/.gitkeep
+
+# Large files
+*.npy
+*.bin
+*.pkl
+
+# OS files
+.DS_Store
+Thumbs.db

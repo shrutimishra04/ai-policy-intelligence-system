@@ -8,23 +8,34 @@ output_folder='data/cleaned_text'
 os.makedirs(output_folder,exist_ok=True)
 
 def clean_text(text):
-    # Remove dotted lines like .............
+    # Remove dotted lines
     text = re.sub(r"\.{2,}", " ", text)
 
-    # Remove page numbers at end of lines
-    text = re.sub(r"\s+\d+\s*$", "", text, flags=re.MULTILINE)
+    # Remove TABLE OF CONTENTS block
+    text = re.sub(r"TABLE OF CONTENTS.*?(SECTION|\Z)", " ", text, flags=re.IGNORECASE)
 
-    # Remove standalone numbers
-    text = re.sub(r"\n\d+\n", "\n", text)
+    # Remove section numbering like "Section 200"
+    text = re.sub(r"Section\s+\d+", " ", text, flags=re.IGNORECASE)
 
-    # Remove multiple spaces
-    text = re.sub(r"\s+", " ", text)
+    # Remove standalone numbers and repeated numbers
+    text = re.sub(r"\b\d+\b(\s+\b\d+\b)+", " ", text)
+    text = re.sub(r"\b\d+\b", " ", text)
+
+    # Remove patterns like ".14" or ". 21"
+    text = re.sub(r"\.\s*\d+", " ", text)
+
+    # Fix ALL CAPS words → normal case
+    text = text.lower()
+    text = text.capitalize()
 
     # Remove weird characters
     text = re.sub(r"[^\w\s\.,;:\-\(\)]", "", text)
 
-    # Normalize spaces again
+    # Normalize spaces
     text = re.sub(r"\s+", " ", text)
+
+    # Fix merged words (basic)
+    text = re.sub(r"([a-z])([A-Z])", r"\1 \2", text)
 
     return text.strip()
 
@@ -43,3 +54,5 @@ for file in tqdm(os.listdir(input_folder)):
                 f.write(cleaned)
 
 print("Text cleaning completed.")   
+with open("data/cleaned_text/Emplolyee Handbook_clean.txt") as f:
+    print(f.read()[:1000])
