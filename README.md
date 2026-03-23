@@ -49,10 +49,10 @@ data/
    Splits documents into smaller chunks using a recursive text splitter  
    Section-aware chunking is used to preserve policy context  
 
-5. Embedding Generation *(next phase)*  
+5. Embedding Generation   
    Converts text chunks into vector embeddings using sentence-transformers  
 
-6. Vector Database *(next phase)*  
+6. Vector Database 
    Stores embeddings in FAISS for efficient similarity search  
 
 ---
