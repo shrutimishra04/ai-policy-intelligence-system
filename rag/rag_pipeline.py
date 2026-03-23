@@ -2,14 +2,12 @@ from retriever import retrieve
 from generator import generate_answer
 
 def ask_question(query):
-    query = query + " employee policy HR rules leave benefits"
     retrieved_chunks = retrieve(query)
 
     if not retrieved_chunks:
         return "I could not find this in the policy documents."
 
-    # Convert list of chunks → single context string
-    context = "\n".join(retrieved_chunks)
+    context = "\n".join(retrieved_chunks[:3])
 
     answer = generate_answer(context, query)
 
