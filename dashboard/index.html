@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HR Policy Assistant</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #eef2f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 520px;
+            height: 650px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 16px;
+            background: #2f6fed;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clear-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background: #f9fbfd;
+        }
+
+        .message {
+            margin: 8px 0;
+            max-width: 75%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .user {
+            align-self: flex-end;
+            background: #2f6fed;
+            color: white;
+        }
+
+        .bot {
+            align-self: flex-start;
+            background: #e6ecf5;
+            color: #1f2937;
+        }
+
+        .time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.6;
+        }
+
+        .icon {
+            margin-right: 6px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            outline: none;
+            font-size: 14px;
+        }
+
+        button.send-btn {
+            margin-left: 10px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #2f6fed;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        button.send-btn:hover {
+            background: #1e4fd1;
+        }
+
+        .typing {
+            font-style: italic;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="chat-container">
+
+    <div class="header">
+        HR Policy Assistant
+        <button class="clear-btn" onclick="clearChat()">Clear</button>
+    </div>
+
+    <div id="messages" class="messages"></div>
+
+    <div class="input-area">
+        <input id="query" placeholder="Ask HR policy questions..." onkeypress="handleKey(event)" />
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script>
+const API_URL = "http://127.0.0.1:8000/ask";
+
+function getTime() {
+    const now = new Date();
+    return now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+function saveToStorage(messages) {
+    localStorage.setItem("chat_history", JSON.stringify(messages));
+}
+
+function loadFromStorage() {
+    const data = localStorage.getItem("chat_history");
+    return data ? JSON.parse(data) : [];
+}
+
+function addMessage(text, type, time, typing=false) {
+    const messagesDiv = document.getElementById("messages");
+
+    const msg = document.createElement("div");
+    msg.className = "message " + type;
+
+    let icon = type === "user" ? "👤" : "🤖";
+    let label = type === "user" ? "You" : "Assistant";
+
+    msg.innerHTML = `
+        <div class="${typing ? 'typing' : ''}">
+            <span class="icon">${icon}</span>
+            <strong>${label}:</strong> ${text}
+        </div>
+        <div class="time">${time}</div>
+    `;
+
+    messagesDiv.appendChild(msg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function renderHistory() {
+    const history = loadFromStorage();
+    history.forEach(msg => {
+        addMessage(msg.text, msg.type, msg.time);
+    });
+}
+
+function handleKey(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById("query");
+    const query = input.value.trim();
+
+    if (!query) return;
+
+    const time = getTime();
+
+    addMessage(query, "user", time);
+
+    let history = loadFromStorage();
+    history.push({ text: query, type: "user", time: time });
+    saveToStorage(history);
+
+    input.value = "";
+
+    addMessage("Typing...", "bot", getTime(), true);
+
+    const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ query: query })
+    });
+
+    const data = await response.json();
+
+    const messagesDiv = document.getElementById("messages");
+    messagesDiv.removeChild(messagesDiv.lastChild);
+
+    const botTime = getTime();
+    addMessage(data.answer, "bot", botTime);
+
+    history.push({ text: data.answer, type: "bot", time: botTime });
+    saveToStorage(history);
+}
+
+function clearChat() {
+    localStorage.removeItem("chat_history");
+    document.getElementById("messages").innerHTML = "";
+}
+
+renderHistory();
+</script>
+
+</body>
+</html>

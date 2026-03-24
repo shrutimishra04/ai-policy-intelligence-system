@@ -1,5 +1,5 @@
-from retriever import retrieve
-from generator import generate_answer
+from rag.retriever import retrieve
+from rag.generator import generate_answer
 
 def ask_question(query):
     retrieved_chunks = retrieve(query)

@@ -22,6 +22,8 @@ Rules:
 - Extract the answer from the context.
 - Do not explain unnecessarily.
 - If partial information is present, still answer using it.
+- Answer only from ONE most relevant policy.
+- Do not combine multiple policies.
 - Only say "I could not find this in the policy documents." if nothing relevant exists.
 
 Context:
