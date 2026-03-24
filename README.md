@@ -174,6 +174,9 @@ Response:
 {
   "answer": "Employees are entitled to..."
 }
+
+---
+
 Future Improvements
 Deploy on cloud (AWS / Render)
 Add authentication
@@ -181,6 +184,7 @@ Add chat history backend (DB)
 Improve UI with React
 Add evaluation metrics
 
+---
 
 Author
 
